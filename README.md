@@ -1,5 +1,5 @@
-# cucumberj-steps
-CucumberJ-Steps aims to provide ready-to-use step
+# cucumberj-utils
+CucumberJ-Utils aims to provide ready-to-use step
 definitions for Cucumber, along with extra utilities to
 easily implement your own steps in JAVA.
 
