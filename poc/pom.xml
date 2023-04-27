@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.garing</groupId>
-        <artifactId>cucumberj-steps</artifactId>
+        <groupId>com.cucumberj.utils</groupId>
+        <artifactId>cucumberj-utils</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
@@ -13,13 +13,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.garing</groupId>
+            <groupId>com.cucumberj.utils</groupId>
             <artifactId>core</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
-            <groupId>com.garing</groupId>
+            <groupId>com.cucumberj.utils</groupId>
             <artifactId>steps</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
