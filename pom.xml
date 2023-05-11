@@ -23,6 +23,8 @@
         <!--Libraries versions-->
         <spotless.plugin.version>2.36.0</spotless.plugin.version>
         <apache.commons.collections.version>4.4</apache.commons.collections.version>
+        <slf4j.api.version>2.0.7</slf4j.api.version>
+        <logback.version>1.4.7</logback.version>
         <h2.database.version>2.1.214</h2.database.version>
         <junit.version>5.9.3</junit.version>
         <assertj.version>3.24.2</assertj.version>
@@ -33,6 +35,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
             <version>${apache.commons.collections.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.api.version}</version>
         </dependency>
 
         <dependency>
@@ -48,6 +56,14 @@
             <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

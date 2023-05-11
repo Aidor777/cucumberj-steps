@@ -18,5 +18,4 @@ public interface SqlRepository<T> {
      * @param elements the elements to insert, null-safe
      */
     void insertElements(Collection<T> elements);
-
 }
