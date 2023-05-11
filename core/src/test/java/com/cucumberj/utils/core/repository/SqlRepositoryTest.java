@@ -3,14 +3,13 @@ package com.cucumberj.utils.core.repository;
 import com.cucumberj.utils.core.repository.datasource.DatabaseUtils;
 import com.cucumberj.utils.core.repository.impl.UserSqlRepository;
 import com.cucumberj.utils.core.repository.record.User;
+import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
 
 public class SqlRepositoryTest {
 
@@ -44,17 +43,21 @@ public class SqlRepositoryTest {
 
     @Test
     public void insertElements_several() {
-        testInsertedUsers(List.of(new User(1L, "Test", "Test", "test.test@test.com"),
+        testInsertedUsers(List.of(
+                new User(1L, "Test", "Test", "test.test@test.com"),
                 new User(2L, "Also", "Test", "also.test@test.com"),
                 new User(3L, "Other", "Test", "other.test@test.com")));
     }
 
     private void testEmptyDatabase(List<User> users) {
         sqlRepository.insertElements(users);
-        try (var connection = DatabaseUtils.getH2DataSource().getConnection(); var statement = connection.createStatement()) {
+        try (var connection = DatabaseUtils.getH2DataSource().getConnection();
+                var statement = connection.createStatement()) {
             var resultSet = statement.executeQuery("select count(*) from " + sqlRepository.tableName());
             resultSet.next();
-            Assertions.assertThat(resultSet.getInt(1)).as("Count of elements found in DB").isZero();
+            Assertions.assertThat(resultSet.getInt(1))
+                    .as("Count of elements found in DB")
+                    .isZero();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -62,13 +65,17 @@ public class SqlRepositoryTest {
 
     private void testInsertedUsers(List<User> users) {
         sqlRepository.insertElements(users);
-        try (var connection = DatabaseUtils.getH2DataSource().getConnection(); var statement = connection.createStatement()) {
+        try (var connection = DatabaseUtils.getH2DataSource().getConnection();
+                var statement = connection.createStatement()) {
             var resultSet = statement.executeQuery("select * from " + sqlRepository.tableName());
             var queriedUsers = new LinkedList<User>();
 
             while (resultSet.next()) {
-                queriedUsers.add(new User(resultSet.getLong("id"), resultSet.getString("first_name"),
-                        resultSet.getString("last_name"), resultSet.getString("email")));
+                queriedUsers.add(new User(
+                        resultSet.getLong("id"),
+                        resultSet.getString("first_name"),
+                        resultSet.getString("last_name"),
+                        resultSet.getString("email")));
             }
 
             Assertions.assertThat(queriedUsers).as("Elements found in DB").hasSameElementsAs(users);

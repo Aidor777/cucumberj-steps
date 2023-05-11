@@ -1,14 +1,13 @@
 package com.cucumberj.utils.core.repository.datasource;
 
-import org.h2.jdbcx.JdbcConnectionPool;
-import org.h2.jdbcx.JdbcDataSource;
-import org.h2.tools.RunScript;
-
-import javax.sql.DataSource;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Objects;
+import javax.sql.DataSource;
+import org.h2.jdbcx.JdbcConnectionPool;
+import org.h2.jdbcx.JdbcDataSource;
+import org.h2.tools.RunScript;
 
 public final class DatabaseUtils {
 
@@ -31,7 +30,8 @@ public final class DatabaseUtils {
 
     public static void initDB() {
         try (var connection = getH2DataSource().getConnection()) {
-            var scriptReader = new InputStreamReader(Objects.requireNonNull(DatabaseUtils.class.getClassLoader().getResourceAsStream("schema.sql")));
+            var scriptReader = new InputStreamReader(
+                    Objects.requireNonNull(DatabaseUtils.class.getClassLoader().getResourceAsStream("schema.sql")));
             RunScript.execute(connection, scriptReader);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -39,10 +39,12 @@ public final class DatabaseUtils {
     }
 
     public static void resetDB() {
-        try (var connection = getH2DataSource().getConnection(); var statement = connection.createStatement()) {
+        try (var connection = getH2DataSource().getConnection();
+                var statement = connection.createStatement()) {
             statement.execute("set referential_integrity false");
 
-            var resultSet = statement.executeQuery("select table_name from information_schema.tables where table_schema = 'PUBLIC'");
+            var resultSet = statement.executeQuery(
+                    "select table_name from information_schema.tables where table_schema = 'PUBLIC'");
             var tableNames = new HashSet<String>();
             while (resultSet.next()) {
                 var tableName = resultSet.getString(1);

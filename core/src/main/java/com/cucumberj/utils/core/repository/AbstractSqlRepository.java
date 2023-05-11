@@ -1,7 +1,5 @@
 package com.cucumberj.utils.core.repository;
 
-import org.apache.commons.collections4.CollectionUtils;
-
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -10,12 +8,17 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
+import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractSqlRepository<T> implements SqlRepository<T> {
 
     protected final String tableName;
 
     protected final DataSource dataSource;
+
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Map<String, Function<T, Object>> valueExtractorByColumnName;
 
@@ -40,6 +43,7 @@ public abstract class AbstractSqlRepository<T> implements SqlRepository<T> {
         result.append(") ").append("values").append(" (");
         result.append(columnNames.stream().map(colName -> "?").collect(Collectors.joining(", ")));
         result.append(")");
+        logger.debug("Insert query built: " + result);
         return result.toString();
     }
 
@@ -64,6 +68,7 @@ public abstract class AbstractSqlRepository<T> implements SqlRepository<T> {
             }
             statement.executeBatch();
         } catch (SQLException e) {
+            logger.error("Error while inserting elements into table " + tableName(), e);
             throw new RuntimeException(e);
         }
     }
