@@ -28,12 +28,12 @@ public class SqlRepositoryTest {
 
     @Test
     public void insertElements_null() {
-        testEmptyDatabase(null);
+        testEmptyUsersTable(null);
     }
 
     @Test
     public void insertElements_empty() {
-        testEmptyDatabase(List.of());
+        testEmptyUsersTable(List.of());
     }
 
     @Test
@@ -49,7 +49,64 @@ public class SqlRepositoryTest {
                 new User(3L, "Other", "Test", "other.test@test.com")));
     }
 
-    private void testEmptyDatabase(List<User> users) {
+    @Test
+    public void countAll_empty() {
+        insertUsers(List.of());
+        Assertions.assertThat(sqlRepository.countAll())
+                .as("Count of users in database")
+                .isZero();
+    }
+
+    @Test
+    public void countAll_single() {
+        insertUsers(List.of(new User(1L, "Test", "Test", "test.test@test.com")));
+        Assertions.assertThat(sqlRepository.countAll())
+                .as("Count of users in database")
+                .isOne();
+    }
+
+    @Test
+    public void countAll_triple() {
+        insertUsers(List.of(
+                new User(1L, "Test", "Test", "test.test@test.com"),
+                new User(2L, "Also", "Test", "also.test@test.com"),
+                new User(3L, "Other", "Test", "other.test@test.com")));
+        Assertions.assertThat(sqlRepository.countAll())
+                .as("Count of users in database")
+                .isEqualTo(3);
+    }
+
+    @Test
+    public void findAll_empty() {
+        List<User> users = List.of();
+        insertUsers(users);
+        Assertions.assertThat(sqlRepository.findAll())
+                .as("All users in database")
+                .hasSameElementsAs(users);
+    }
+
+    @Test
+    public void findAll_single() {
+        List<User> users = List.of(new User(1L, "Test", "Test", "test.test@test.com"));
+        insertUsers(users);
+        Assertions.assertThat(sqlRepository.findAll())
+                .as("All users in database")
+                .hasSameElementsAs(users);
+    }
+
+    @Test
+    public void findAll_triple() {
+        List<User> users = List.of(
+                new User(1L, "Test", "Test", "test.test@test.com"),
+                new User(2L, "Also", "Test", "also.test@test.com"),
+                new User(3L, "Other", "Test", "other.test@test.com"));
+        insertUsers(users);
+        Assertions.assertThat(sqlRepository.findAll())
+                .as("All users in database")
+                .hasSameElementsAs(users);
+    }
+
+    private void testEmptyUsersTable(List<User> users) {
         sqlRepository.insertElements(users);
         try (var connection = DatabaseUtils.getH2DataSource().getConnection();
                 var statement = connection.createStatement()) {
@@ -79,6 +136,24 @@ public class SqlRepositoryTest {
             }
 
             Assertions.assertThat(queriedUsers).as("Elements found in DB").hasSameElementsAs(users);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void insertUsers(List<User> users) {
+        var sqlInsertQuery = "insert into users(id, first_name, last_name, email) values (?, ?, ?, ?)";
+        try (var connection = DatabaseUtils.getH2DataSource().getConnection();
+                var statement = connection.prepareStatement(sqlInsertQuery)) {
+
+            for (var user : users) {
+                statement.setLong(1, user.id());
+                statement.setString(2, user.firstName());
+                statement.setString(3, user.lastName());
+                statement.setString(4, user.email());
+                statement.addBatch();
+            }
+            statement.executeBatch();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

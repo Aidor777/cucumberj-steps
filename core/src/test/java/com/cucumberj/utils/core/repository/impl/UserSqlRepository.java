@@ -2,6 +2,8 @@ package com.cucumberj.utils.core.repository.impl;
 
 import com.cucumberj.utils.core.repository.AbstractSqlRepository;
 import com.cucumberj.utils.core.repository.record.User;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.function.Function;
 import javax.sql.DataSource;
@@ -13,5 +15,14 @@ public class UserSqlRepository extends AbstractSqlRepository<User> {
 
     public UserSqlRepository(DataSource dataSource) {
         super("users", dataSource, VALUE_EXTRACTOR_BY_COLUMN_NAME);
+    }
+
+    @Override
+    protected User mapRow(ResultSet resultSet) throws SQLException {
+        var id = resultSet.getLong("id");
+        var firstName = resultSet.getString("first_name");
+        var lastName = resultSet.getString("last_name");
+        var email = resultSet.getString("email");
+        return new User(id, firstName, lastName, email);
     }
 }

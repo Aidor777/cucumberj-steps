@@ -1,10 +1,9 @@
 package com.cucumberj.utils.core.repository;
 
+import com.cucumberj.utils.core.model.UniquelyIdentified;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
@@ -12,7 +11,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractSqlRepository<T> implements SqlRepository<T> {
+public abstract class AbstractSqlRepository<T extends UniquelyIdentified> implements SqlRepository<T> {
 
     protected final String tableName;
 
@@ -72,4 +71,43 @@ public abstract class AbstractSqlRepository<T> implements SqlRepository<T> {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public int countAll() {
+        try (var connection = dataSource.getConnection();
+                var statement = connection.createStatement();
+                var resultSet = statement.executeQuery("select count(*) from " + tableName())) {
+
+            resultSet.next();
+            return resultSet.getInt(1);
+        } catch (SQLException e) {
+            logger.error("Error while counting elements in table " + tableName(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<T> findAll() {
+        List<T> elements = new LinkedList<>();
+        try (var connection = dataSource.getConnection();
+                var statement = connection.createStatement();
+                var resultSet = statement.executeQuery("select * from " + tableName())) {
+
+            while (resultSet.next()) {
+                elements.add(mapRow(resultSet));
+            }
+        } catch (Exception e) {
+            logger.error("Error while fetching elements from table " + tableName(), e);
+            throw new RuntimeException(e);
+        }
+        return elements;
+    }
+
+    /**
+     * Map a row int the database to a domain object
+     *
+     * @param resultSet the result set at the next position
+     * @return a domain object representing a row in the database
+     */
+    protected abstract T mapRow(ResultSet resultSet) throws SQLException;
 }
